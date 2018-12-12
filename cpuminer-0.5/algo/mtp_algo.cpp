@@ -20,21 +20,20 @@ extern "C"
 #define SALTLEN 16
 #define PWD "password"
 
-static  uint32_t JobId = 0;
+static uint32_t JobId = 0;
 static  MerkleTree::Elements TheElements;
-static  MerkleTree ordered_tree;
+static MerkleTree ordered_tree;
 static  unsigned char TheMerkleRoot[16];
 static  argon2_context context;
 static  argon2_instance_t instance;
 static  MerkleTree::Buffer root;
-static block *memory = (block*)malloc(memcost*128*sizeof(uint64_t*));
-static bool DoInitialization = true;
+
 
 
 int scanhash_mtp(pthread_mutex_t work_lock,int thr_id, struct work* work, uint32_t max_nonce, uint64_t *hashes_done, struct mtp* mtp)
 {
 
-	bool restart_flag = false;
+
 	struct timeval tv_start, tv_end, timediff;
 //	unsigned char TheMerkleRoot[16];
 	unsigned char mtpHashValue[32];
@@ -61,63 +60,30 @@ int scanhash_mtp(pthread_mutex_t work_lock,int thr_id, struct work* work, uint32
 		return 0;
 
 	pthread_mutex_lock(&work_lock);
-//	gettimeofday(&tv_start, NULL);
-	if (JobId == 0 ) {
-	instance.first_use = 0;
-	}
-        pthread_mutex_unlock(&work_lock);
+	gettimeofday(&tv_start, NULL);
 
-	
-	pthread_mutex_lock(&work_lock);
-		if (JobId!=work->data[17]) {
-			DoInitialization = true;
-			JobId = work->data[17];
-		}
-        pthread_mutex_unlock(&work_lock);
-		
-//		pthread_mutex_lock(&work_lock);
-	if (DoInitialization) {
-                pthread_mutex_lock(&work_lock);
-		work_restart[thr_id].restart = 1;
-                pthread_mutex_unlock(&work_lock);
-                pthread_mutex_lock(&work_lock);
-		DoInitialization = false;
+	if (JobId != work->data[17]) {
 
-		if (instance.first_use!=0) 
+		if (JobId != 0)
 			free_memory(&context, (unsigned char *)instance.memory, instance.memory_blocks, sizeof(block));
 
+		JobId = work->data[17];
 		context = init_argon2d_param((const char*)endiandata);
 		argon2_ctx_from_mtp(&context, &instance);	
-		instance.first_use=1;
 		TheElements = mtp_init2(&instance);
-
-		if (TheElements.size()==0) {
-				JobId=0;
-				pthread_mutex_unlock(&work_lock);
-				return 0;
-		}
-  //              pthread_mutex_unlock(&work_lock);
-		
-//		pthread_mutex_lock(&work_lock);
 		ordered_tree = MerkleTree(TheElements, true);
 		root = ordered_tree.getRoot();
 		std::copy(root.begin(), root.end(), TheMerkleRoot);
-		pthread_mutex_unlock(&work_lock);
-
-//		pthread_mutex_lock(&work_lock);
-		for (int k = 0; k<memcost; k++)
-			memcpy(memory[k].v, instance.memory[k].v, 128 * sizeof(uint64_t));
- //               pthread_mutex_unlock(&work_lock);
-
+	
 		}
-//		pthread_mutex_unlock(&work_lock);
 
-//	gettimeofday(&tv_end, NULL);
-//	pthread_mutex_unlock(&work_lock);	
-//	timeval_subtract(&timediff, &tv_end, &tv_start);
-//	if (timediff.tv_usec || timediff.tv_sec) {
-//		printf("******************************timediff %f time diff %d sec %d microsec \n",  (timediff.tv_sec + timediff.tv_usec * 1e-6), timediff.tv_sec, timediff.tv_usec);
-//	}
+
+	gettimeofday(&tv_end, NULL);
+	pthread_mutex_unlock(&work_lock);	
+	timeval_subtract(&timediff, &tv_end, &tv_start);
+	if (timediff.tv_usec || timediff.tv_sec) {
+		printf("******************************timediff %f time diff %d sec %d microsec \n",  (timediff.tv_sec + timediff.tv_usec * 1e-6), timediff.tv_sec, timediff.tv_usec);
+	}
 
 
 
@@ -135,7 +101,7 @@ int scanhash_mtp(pthread_mutex_t work_lock,int thr_id, struct work* work, uint32
 			uint256 TheUint256Target[1];
 			TheUint256Target[0] = ((uint256*)ptarget)[0];
 
-			uint32_t is_sol = mtp_solver_nowriting2(foundNonce, &instance,memory,TheMerkleRoot, endiandata, TheUint256Target[0]);
+			uint32_t is_sol = mtp_solver_nowriting(foundNonce, &instance,(TheMerkleRoot), endiandata, TheUint256Target[0]);
 
 
 			if (is_sol == 1 && !work_restart[thr_id].restart) {
@@ -143,7 +109,7 @@ int scanhash_mtp(pthread_mutex_t work_lock,int thr_id, struct work* work, uint32
 				uint64_t nBlockMTP[MTP_L * 2][128];
 				unsigned char nProofMTP[MTP_L * 3 * 353];
 
-				mtp_solver2(foundNonce, &instance,memory, nBlockMTP, nProofMTP, TheMerkleRoot, mtpHashValue, ordered_tree, endiandata, TheUint256Target[0]);
+				mtp_solver(foundNonce, &instance, nBlockMTP, nProofMTP, TheMerkleRoot, mtpHashValue, ordered_tree, endiandata, TheUint256Target[0]);
 
 				int res = 1;
 				//	work_set_target_ratio(work, vhash64);		
