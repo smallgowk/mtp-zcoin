@@ -113,7 +113,7 @@ cpuminer_SOURCES = \
   algo/mtp_algo.cpp \
   merkletree/merkle-tree.cpp 	merkletree/merkle-tree.hpp \
   merkletree/mtp.h 	  merkletree/mtp.cpp \
-  merkletree/serialize.h \
+  merkletree/serialize.h
   
 disable_flags =
 
