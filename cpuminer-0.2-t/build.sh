@@ -10,7 +10,8 @@ fi
 make clean || echo clean
 
 rm -f config.status
-./autogen.sh || echo done
+sudo chmod +x autogen.sh
+sudo ./autogen.sh || echo done
 
 # Ubuntu 10.04 (gcc 4.4)
 # extracflags="-O3 -march=native -Wall -D_REENTRANT -funroll-loops -fvariable-expansion-in-unroller -fmerge-all-constants -fbranch-target-load-optimize2 -fsched2-use-superblocks -falign-loops=16 -falign-functions=16 -falign-jumps=16 -falign-labels=16"
@@ -23,7 +24,8 @@ if [ ! "0" = `cat /proc/cpuinfo | grep -c avx` ]; then
     extracflags="$extracflags -march=native"
 fi
 
-./configure --with-crypto --with-curl CFLAGS="-O2 $extracflags -DUSE_ASM -pg"
+sudo chmod +x configure
+sudo ./configure --with-crypto --with-curl CFLAGS="-O2 $extracflags -DUSE_ASM -pg"
 
 make -j 4
 
