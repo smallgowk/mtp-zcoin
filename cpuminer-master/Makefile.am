@@ -118,7 +118,7 @@ cpuminer_SOURCES = \
   argon2ref/blamka-round-ref.h  argon2ref/core.h  \
   argon2ref/encoding.h  argon2ref/thread.c  \
   argon2ref/argon2.h  argon2ref/blake2.h    \
-  argon2ref/blamka-round-opt.h  argon2ref/core.c   \      
+  argon2ref/blamka-round-opt.h  argon2ref/core.c   \
   argon2ref/encoding.c  argon2ref/ref.c   argon2ref/thread.h \
   base58.cpp
 
