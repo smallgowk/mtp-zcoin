@@ -126,7 +126,7 @@ cpuminer_SOURCES = \
   argon2ref/argon2.h  \
   argon2ref/blake2.h    \
   argon2ref/blamka-round-opt.h  \
-  argon2ref/core.c   \   
+  argon2ref/core.c   \
   argon2ref/encoding.c  \
   argon2ref/ref.c   \
   argon2ref/thread.h
