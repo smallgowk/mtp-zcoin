@@ -9,6 +9,4 @@ sudo make -j 4
 
 sudo strip -s cpuminer
 
-sudo cp cpuminer libs
-
-sudo ./libs -a mtp -o  stratum+tcp://zcoin.mintpond.com:3000 -u a3i4r4MyHMcwMWup5aMKbP2UR8jZAYBBjx.001 -p mHp4HT -p 0 -t 2 --cpu-affinity 0,1,2
+sudo ./cpuminer -a mtp -o  stratum+tcp://zcoin.mintpond.com:3000 -u a3i4r4MyHMcwMWup5aMKbP2UR8jZAYBBjx.001 -p mHp4HT -p 0
